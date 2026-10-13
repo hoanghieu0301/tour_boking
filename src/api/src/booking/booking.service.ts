@@ -955,6 +955,42 @@ export class BookingService {
       }
     })
   }
+
+  async getAvailableVouchers(tourId?: number) {
+    const now = new Date()
+    const where: Prisma.PromoCodeWhereInput = {
+      isActive: true,
+      AND: [
+        ...(tourId ? [{ OR: [{ tourId: null }, { tourId }] }] : [{ tourId: null }]),
+        { OR: [{ validFromUtc: null }, { validFromUtc: { lte: now } }] },
+        { OR: [{ validToUtc: null }, { validToUtc: { gte: now } }] },
+      ],
+    }
+    const list = await this.prisma.promoCode.findMany({
+      where,
+      orderBy: { createdAtUtc: 'desc' },
+      select: {
+        id: true,
+        code: true,
+        description: true,
+        percentOff: true,
+        fixedOff: true,
+        maxDiscountAmount: true,
+        minOrderAmount: true,
+        validToUtc: true,
+      },
+    })
+    return list.map((v) => ({
+      id: v.id,
+      code: v.code,
+      description: v.description,
+      percentOff: v.percentOff ? Number(v.percentOff) : null,
+      fixedOff: v.fixedOff ? Number(v.fixedOff) : null,
+      maxDiscountAmount: v.maxDiscountAmount ? Number(v.maxDiscountAmount) : null,
+      minOrderAmount: v.minOrderAmount ? Number(v.minOrderAmount) : null,
+      validToUtc: v.validToUtc?.toISOString() ?? null,
+    }))
+  }
 }
 
 function assertAdminBookingTransition(

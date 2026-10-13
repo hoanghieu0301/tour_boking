@@ -1,4 +1,4 @@
-import { Controller, UseGuards } from '@nestjs/common'
+import { Controller, Get, Query, UseGuards } from '@nestjs/common'
 import { TsRestHandler } from '@ts-rest/nest'
 import { bookingContract } from '../../../shared/contracts/booking.contract'
 import { BookingService } from './booking.service'
@@ -15,6 +15,12 @@ import { Roles } from '../../common/decorators/roles.decorator'
 @Controller('bookings')
 export class BookingController {
   constructor(private readonly bookingService: BookingService) {}
+
+  @Get('vouchers/available')
+  async getAvailableVouchers(@Query('tourId') tourId?: string) {
+    const tid = tourId ? Number(tourId) : undefined
+    return this.bookingService.getAvailableVouchers(Number.isFinite(tid) ? tid : undefined)
+  }
 
   @TsRestHandler(bookingContract.getMyBookings)
   @UseGuards(JwtAuthGuard)

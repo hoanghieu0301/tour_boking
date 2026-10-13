@@ -199,3 +199,21 @@ export async function cancelMyBooking(id: number) {
   });
 }
 
+export type AvailableVoucher = {
+  id: number;
+  code: string;
+  description: string | null;
+  percentOff: number | null;
+  fixedOff: number | null;
+  maxDiscountAmount: number | null;
+  minOrderAmount: number | null;
+  validToUtc: string | null;
+};
+
+export async function getAvailableVouchers(tourId?: number) {
+  const q = tourId ? `?tourId=${tourId}` : '';
+  return requestWithOptionalAuth<AvailableVoucher[]>(`/bookings/vouchers/available${q}`, {
+    method: "GET",
+  });
+}
+

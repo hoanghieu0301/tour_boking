@@ -43,6 +43,8 @@ import {
   createBooking,
   createVnpayPayment,
   previewPromo,
+  getAvailableVouchers,
+  type AvailableVoucher,
   type CreateBookingInput,
 } from '@/lib/client-booking';
 import { PassengerDobPicker } from '@/components/booking/passenger-dob-picker';
@@ -2000,6 +2002,20 @@ export default function TourBookingClient({
   const [promoDraft, setPromoDraft] = useState('');
   const [promoErr, setPromoErr] = useState<string | null>(null);
   const [promoLoading, setPromoLoading] = useState(false);
+  const [availableVouchers, setAvailableVouchers] = useState<AvailableVoucher[]>([]);
+  const [loadingVouchers, setLoadingVouchers] = useState(false);
+
+  useEffect(() => {
+    if (promoOpen) {
+      setLoadingVouchers(true);
+      void getAvailableVouchers(tour.id).then((res) => {
+        if (res.ok && Array.isArray(res.data)) {
+          setAvailableVouchers(res.data);
+        }
+        setLoadingVouchers(false);
+      });
+    }
+  }, [promoOpen, tour.id]);
 
   useEffect(() => {
     setAppliedPromoCode(null);
@@ -2043,9 +2059,9 @@ export default function TourBookingClient({
   const step1ShowsBookNow =
     step1EssentialInfoComplete && agreedToTerms;
 
-  async function applyPromoFromModal() {
+  async function applyPromoFromModal(customCode?: string) {
     setPromoErr(null);
-    const code = promoDraft.trim();
+    const code = (customCode ?? promoDraft).trim();
     if (!code) {
       setPromoErr('Vui lòng nhập mã giảm giá.');
       return;
@@ -2430,6 +2446,63 @@ export default function TourBookingClient({
                 {promoErr}
               </p>
             ) : null}
+
+            {/* Danh sách mã ưu đãi có sẵn */}
+            <div className="mt-4 flex flex-col gap-2.5 max-h-60 overflow-y-auto pr-1">
+              {loadingVouchers ? (
+                <p className="py-4 text-center text-xs text-stone-400">Đang tải mã ưu đãi...</p>
+              ) : availableVouchers.length > 0 ? (
+                availableVouchers.map((v) => {
+                  const isCurrent = appliedPromoCode?.toUpperCase() === v.code.toUpperCase();
+                  const discountLabel = v.percentOff
+                    ? `Giảm ${v.percentOff}%${v.maxDiscountAmount ? ` (Tối đa ${formatVnd(v.maxDiscountAmount)})` : ''}`
+                    : v.fixedOff
+                      ? `Giảm ${formatVnd(v.fixedOff)}`
+                      : 'Ưu đãi đặc biệt';
+                  return (
+                    <div
+                      key={v.id}
+                      className={`flex items-center justify-between rounded-xl border p-3 transition ${
+                        isCurrent
+                          ? 'border-teal-500 bg-teal-50/50'
+                          : 'border-stone-200 bg-stone-50/60 hover:border-teal-300'
+                      }`}
+                    >
+                      <div className="min-w-0 flex-1 pr-2">
+                        <div className="flex items-center gap-2">
+                          <span className="rounded-md bg-teal-100 px-2 py-0.5 font-mono text-xs font-bold text-teal-800">
+                            {v.code}
+                          </span>
+                          <span className="text-xs font-semibold text-stone-800">
+                            {discountLabel}
+                          </span>
+                        </div>
+                        {v.description ? (
+                          <p className="mt-1 line-clamp-1 text-[11px] text-stone-500">
+                            {v.description}
+                          </p>
+                        ) : null}
+                      </div>
+                      <button
+                        type="button"
+                        disabled={promoLoading || isCurrent}
+                        onClick={() => void applyPromoFromModal(v.code)}
+                        className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-bold transition ${
+                          isCurrent
+                            ? 'bg-teal-600 text-white cursor-default'
+                            : 'border border-teal-600 bg-white text-teal-700 hover:bg-teal-600 hover:text-white'
+                        }`}
+                      >
+                        {isCurrent ? 'Đang dùng' : 'Áp dụng'}
+                      </button>
+                    </div>
+                  );
+                })
+              ) : (
+                <p className="py-2 text-center text-xs text-stone-400">Hiện không có mã ưu đãi tự động</p>
+              )}
+            </div>
+
             <p className="mt-4 border-t border-stone-100 pt-3 text-[11px] leading-relaxed text-stone-400">
               * Đã hiển thị hết mã ưu đãi bạn có thể sử dụng
             </p>
