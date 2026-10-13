@@ -7,7 +7,7 @@ import { resolve } from 'path'
 import * as bcrypt from 'bcrypt'
 import { PrismaClient } from '@prisma/client'
 import { PrismaMariaDb } from '@prisma/adapter-mariadb'
-import { preferIpv4Localhost } from '../src/prisma/normalize-database-url'
+import { getMariaDbPoolConfig } from '../src/prisma/normalize-database-url'
 
 config({ path: resolve(process.cwd(), 'src/api/.env') })
 
@@ -18,10 +18,10 @@ if (!raw) {
   )
 }
 
-const url = preferIpv4Localhost(raw)
+const dbConfig = getMariaDbPoolConfig(raw)
 
 const prisma = new PrismaClient({
-  adapter: new PrismaMariaDb(url),
+  adapter: new PrismaMariaDb(dbConfig),
 })
 
 const SAMPLE_SLUG_PREFIX = 'demo-'
