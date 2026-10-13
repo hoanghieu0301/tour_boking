@@ -29,6 +29,7 @@ function remotePatternFromApiUrl(): {
 const apiPattern = remotePatternFromApiUrl();
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   turbopack: {
     root: path.join(__dirname),
   },

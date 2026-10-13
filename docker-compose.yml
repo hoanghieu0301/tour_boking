@@ -1,0 +1,70 @@
+services:
+  # 1. Database MySQL
+  mysql:
+    image: mysql:8.0
+    container_name: tour_booking_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: tour_booking
+      MYSQL_USER: tour_user
+      MYSQL_PASSWORD: tour_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpassword"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # 2. Backend API (NestJS + Socket.IO + Prisma)
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: tour_booking_api
+    restart: always
+    ports:
+      - "4000:4000"
+    environment:
+      PORT: 4000
+      DATABASE_URL: "mysql://tour_user:tour_password@mysql:3306/tour_booking?allowPublicKeyRetrieval=true"
+      JWT_SECRET: "tour_booking_super_secret_jwt_key_2026"
+      API_PUBLIC_URL: "http://localhost:4000"
+      USER_APP_PUBLIC_URL: "http://localhost:3000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  # 3. Frontend Khách hàng (Next.js 15)
+  user:
+    build:
+      context: ./src/user
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: "http://localhost:4000"
+    container_name: tour_booking_user
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+
+  # 4. Frontend Quản trị Admin (Next.js 15)
+  admin:
+    build:
+      context: ./src/admin
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: "http://localhost:4000"
+    container_name: tour_booking_admin
+    restart: always
+    ports:
+      - "3001:3001"
+    depends_on:
+      - api
+
+volumes:
+  mysql_data:
