@@ -1,0 +1,14 @@
+Kết nối MySQL local:
+- Host: localhost
+- Port: 3306
+- Database: tour_booking
+- User: root
+
+Chạy toàn bộ lệnh từ thư mục gốc repository:
+
+npx prisma generate --config src/api/prisma.config.ts
+npx prisma migrate deploy --config src/api/prisma.config.ts
+npm run db:seed
+
+Mở Prisma Studio:
+npx prisma studio --config src/api/prisma.config.ts

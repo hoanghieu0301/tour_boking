@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.*
+
+# Production builds
+dist/
+build/
+.next/
+out/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+src/api/.env
+src/admin/.env*
+src/user/.env*
+!src/api/.env.example
+!src/admin/.env.example
+!src/user/.env.example
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# OS & Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# TypeScript cache
+*.tsbuildinfo
+next-env.d.ts
+
+# Large docs / temp reports (optional)
+*.docx
