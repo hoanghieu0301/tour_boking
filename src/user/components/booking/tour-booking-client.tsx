@@ -1320,18 +1320,20 @@ function StepEnterInfo({
                           dep.priceOverride ?? tour.basePrice ?? null;
                         const isSelected = dep.id === selectedScheduleId;
                         const isSoldOut = rem != null && rem <= 0;
+                        const isPast = depStart.getTime() < Date.now();
+                        const isDisabled = isSoldOut || isPast;
 
                         return (
                           <button
                             key={dep.id}
                             type="button"
-                            disabled={isSoldOut}
+                            disabled={isDisabled}
                             onClick={() => setSelectedScheduleId(dep.id)}
                             className={`min-w-[170px] flex-1 rounded-xl border p-3 text-left transition ${
                               isSelected
                                 ? 'border-teal-600 bg-teal-50 ring-1 ring-teal-500 shadow-sm'
-                                : isSoldOut
-                                  ? 'cursor-not-allowed border-stone-200 bg-stone-100 opacity-50'
+                                : isDisabled
+                                  ? 'cursor-not-allowed border-stone-200 bg-stone-100 opacity-60'
                                   : 'border-stone-200 bg-white hover:border-teal-300 hover:bg-teal-50'
                             }`}
                           >
@@ -1345,6 +1347,10 @@ function StepEnterInfo({
                               {isSelected ? (
                                 <span className="rounded-full bg-teal-600 px-2 py-0.5 text-[10px] font-bold text-white">
                                   ✓ Chọn
+                                </span>
+                              ) : isPast ? (
+                                <span className="rounded-full bg-stone-200 px-2 py-0.5 text-[10px] font-semibold text-stone-600">
+                                  Đã khởi hành
                                 </span>
                               ) : null}
                             </div>
@@ -2055,9 +2061,14 @@ export default function TourBookingClient({
     return true;
   }, [selectedScheduleId, contact, adultP, childP, infantP]);
 
-  /** Nút «Đặt ngay» chỉ khi đủ thông tin và đã tích đồng ý điều khoản. */
+  const isPastSelectedSchedule = useMemo(() => {
+    if (!selectedSchedule) return false;
+    return new Date(selectedSchedule.startDate).getTime() < Date.now();
+  }, [selectedSchedule]);
+
+  /** Nút «Đặt ngay» chỉ khi đủ thông tin, đã tích điều khoản và lịch chưa qua. */
   const step1ShowsBookNow =
-    step1EssentialInfoComplete && agreedToTerms;
+    step1EssentialInfoComplete && agreedToTerms && !isPastSelectedSchedule;
 
   async function applyPromoFromModal(customCode?: string) {
     setPromoErr(null);
@@ -2106,6 +2117,10 @@ export default function TourBookingClient({
     setTermsHighlight(false);
     if (!selectedScheduleId) {
       setStepErr('Vui lòng chọn lịch khởi hành.');
+      return;
+    }
+    if (selectedSchedule && new Date(selectedSchedule.startDate).getTime() < Date.now()) {
+      setStepErr('Lịch khởi hành này đã qua thời gian khởi hành. Vui lòng chọn ngày khác.');
       return;
     }
     if (

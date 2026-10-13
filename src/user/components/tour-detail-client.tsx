@@ -1187,12 +1187,22 @@ export default function TourDetailClient({ tour }: { tour: TourDetail }) {
                       >
                         Ngày khác
                       </button>
-                      <Link
-                        href={`/book/${tour.id}?scheduleId=${selSchedule.id}`}
-                        className="flex-1 rounded bg-[#d92d20] px-3 py-2.5 text-center text-sm font-semibold text-white hover:bg-[#b91c1c]"
-                      >
-                        Đặt ngay
-                      </Link>
+                      {new Date(selSchedule.startDate).getTime() < Date.now() ? (
+                        <button
+                          type="button"
+                          disabled
+                          className="flex-1 cursor-not-allowed rounded bg-stone-300 px-3 py-2.5 text-center text-sm font-semibold text-stone-600"
+                        >
+                          Đã khởi hành
+                        </button>
+                      ) : (
+                        <Link
+                          href={`/book/${tour.id}?scheduleId=${selSchedule.id}`}
+                          className="flex-1 rounded bg-[#d92d20] px-3 py-2.5 text-center text-sm font-semibold text-white hover:bg-[#b91c1c]"
+                        >
+                          Đặt ngay
+                        </Link>
+                      )}
                     </div>
                     <div className="mt-2">
                       <WishlistButton tourId={tour.id} tourName={tour.name} variant="button" className="w-full justify-center" />
@@ -1242,12 +1252,22 @@ export default function TourDetailClient({ tour }: { tour: TourDetail }) {
           </div>
         </div>
         {selSchedule ? (
-          <Link
-            href={`/book/${tour.id}?scheduleId=${selSchedule.id}`}
-            className="rounded bg-[#d92d20] px-5 py-2.5 text-sm font-semibold text-white"
-          >
-            Đặt ngay
-          </Link>
+          new Date(selSchedule.startDate).getTime() < Date.now() ? (
+            <button
+              type="button"
+              disabled
+              className="cursor-not-allowed rounded bg-stone-300 px-5 py-2.5 text-sm font-semibold text-stone-600"
+            >
+              Đã khởi hành
+            </button>
+          ) : (
+            <Link
+              href={`/book/${tour.id}?scheduleId=${selSchedule.id}`}
+              className="rounded bg-[#d92d20] px-5 py-2.5 text-sm font-semibold text-white"
+            >
+              Đặt ngay
+            </Link>
+          )
         ) : (
           <button
             type="button"

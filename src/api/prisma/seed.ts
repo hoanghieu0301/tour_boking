@@ -250,7 +250,7 @@ async function main() {
       title: `${name.split(' - ')[0]} - chương trình ngày ${dayIndex + 1}`,
       description: 'Ăn sáng, tham quan theo chương trình và hướng dẫn viên địa phương.',
     }))
-    const firstDeparture = new Date(Date.UTC(2026, 9 + Math.floor(index / 6), 3 + (index % 6) * 4, 7))
+    const firstDeparture = new Date(Date.UTC(2026, 9 + Math.floor(index / 6), 20 + (index % 6) * 4, 7))
     const departureDays = Array.from({ length: 4 }, (_, scheduleIndex) => addDaysUtc(firstDeparture, scheduleIndex * 14))
 
     await prisma.tour.create({
