@@ -968,26 +968,24 @@ export class BookingService {
     }
     const list = await this.prisma.promoCode.findMany({
       where,
-      orderBy: { createdAtUtc: 'desc' },
+      orderBy: { id: 'desc' },
       select: {
         id: true,
         code: true,
-        description: true,
         percentOff: true,
         fixedOff: true,
         maxDiscountAmount: true,
-        minOrderAmount: true,
         validToUtc: true,
       },
     })
     return list.map((v) => ({
       id: v.id,
       code: v.code,
-      description: v.description,
+      description: null,
       percentOff: v.percentOff ? Number(v.percentOff) : null,
       fixedOff: v.fixedOff ? Number(v.fixedOff) : null,
       maxDiscountAmount: v.maxDiscountAmount ? Number(v.maxDiscountAmount) : null,
-      minOrderAmount: v.minOrderAmount ? Number(v.minOrderAmount) : null,
+      minOrderAmount: null,
       validToUtc: v.validToUtc?.toISOString() ?? null,
     }))
   }
