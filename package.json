@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "postinstall": "prisma generate --config src/api/prisma.config.ts",
+    "postinstall": "npx --yes prisma generate --config src/api/prisma.config.ts",
     "prisma:generate": "prisma generate --config src/api/prisma.config.ts",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
