@@ -201,9 +201,7 @@ export class PaymentService {
     const txnRef = String(payment.id)
     const returnUrl = `${this.apiPublicBase()}/payments/vnpay/return`
     const ipnUrl = `${this.apiPublicBase()}/payments/vnpay/ipn`
-    const includeIpn =
-      process.env.VNPAY_INCLUDE_IPN_URL === 'true' ||
-      !/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(this.apiPublicBase())
+    const includeIpn = process.env.VNPAY_INCLUDE_IPN_URL === 'true'
 
     const orderInfo = `Thanh toan booking ${bookingId} tour ${booking.schedule.tour.name}`
       .normalize('NFD')
