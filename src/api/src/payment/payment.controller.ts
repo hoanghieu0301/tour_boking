@@ -126,7 +126,8 @@ export class PaymentController {
         302,
         `${base}/bookings?payment=failed${booking}`,
       )
-    } catch {
+    } catch (err) {
+      console.error('[vnpayReturn] Error handling VNPay return query:', err)
       return res.redirect(302, `${base}/bookings?payment=error`)
     }
   }

@@ -311,7 +311,8 @@ export class PaymentService {
     let verified: ReturnType<VNPay['verifyReturnUrl']>
     try {
       verified = vnpay.verifyReturnUrl(flat as ReturnQueryFromVNPay)
-    } catch {
+    } catch (err) {
+      this.log.error('[handleVnpayReturn] verifyReturnUrl exception:', err)
       return { ok: false }
     }
 
@@ -332,6 +333,9 @@ export class PaymentService {
     const tourId = payment.booking.schedule.tour.id
 
     if (!verified.isVerified) {
+      this.log.warn(
+        `[handleVnpayReturn] Chữ ký không hợp lệ hoặc sai checksum cho payment #${paymentId}: ${verified.message}`,
+      )
       return { ok: false, bookingId, tourId }
     }
 
